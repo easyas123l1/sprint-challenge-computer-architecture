@@ -7,6 +7,7 @@ LDI = 0b10000010
 PRN = 0b01000111
 HLT = 0b00000001
 MUL = 0b10100010
+CMP = 0b10100111
 
 
 class CPU:
@@ -18,11 +19,15 @@ class CPU:
         self.reg = [0] * 8
         self.pc = 0  # program counter
         self.running = False
+        self.SP = 7  # Stack Pointer
+        self.reg[self.SP] = 0xF4
+        self.flag = bin(0)
         self.branch_table = {
             LDI: self.LDI,
             PRN: self.PRN,
             HLT: self.HLT,
             MUL: self.MUL,
+            CMP: self.CMP
         }
 
     def ram_read(self, address):
@@ -45,9 +50,16 @@ class CPU:
 
         if op == "ADD":
             self.reg[reg_a] += self.reg[reg_b]
-        # elif op == "SUB": etc
-        if op == "MUL":
+        elif op == "MUL":
             self.reg[reg_a] *= self.reg[reg_b]
+        elif op == "CMP":
+            if self.reg[reg_a] == self.reg[reg_b]:
+                self.flag = bin(1)
+            elif self.reg[reg_a] < self.reg[reg_b]:
+                self.flag = bin(1 << 2)
+            else:
+                self.flag = bin(1 << 1)
+
         else:
             raise Exception("Unsupported ALU operation")
 
@@ -86,6 +98,10 @@ class CPU:
     def HLT(self, op_a, op_b):
         self.running = False
         return 0
+
+    def CMP(self, op_a, op_b):
+        self.alu("CMP", op_a, op_b)
+        return 3
 
     def run(self):
         """Run the CPU."""
