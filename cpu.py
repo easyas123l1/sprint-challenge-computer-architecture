@@ -9,6 +9,8 @@ HLT = 0b00000001
 MUL = 0b10100010
 CMP = 0b10100111
 JMP = 0b01010100
+JNE = 0b01010110
+JEQ = 0b01010101
 
 
 class CPU:
@@ -22,14 +24,16 @@ class CPU:
         self.running = False
         self.SP = 7  # Stack Pointer
         self.reg[self.SP] = 0xF4
-        self.flag = bin(0)
+        self.flag = 0b0
         self.branch_table = {
             LDI: self.LDI,
             PRN: self.PRN,
             HLT: self.HLT,
             MUL: self.MUL,
             CMP: self.CMP,
-            JMP: self.JMP
+            JMP: self.JMP,
+            JNE: self.JNE,
+            JEQ: self.JEQ
         }
 
     def ram_read(self, address):
@@ -108,6 +112,20 @@ class CPU:
     def JMP(self, op_a, op_b):
         self.pc = self.reg[op_a]
         return 0
+
+    def JNE(self, op_a, op_b):
+        if self.flag != bin(1):
+            self.pc = self.reg[op_a]
+            return 0
+        else:
+            return 2
+
+    def JEQ(self, op_a, op_b):
+        if self.flag == bin(1):
+            self.pc = self.reg[op_a]
+            return 0
+        else:
+            return 2
 
     def run(self):
         """Run the CPU."""
