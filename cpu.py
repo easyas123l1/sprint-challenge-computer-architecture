@@ -8,6 +8,7 @@ PRN = 0b01000111
 HLT = 0b00000001
 MUL = 0b10100010
 CMP = 0b10100111
+JMP = 0b01010100
 
 
 class CPU:
@@ -27,7 +28,8 @@ class CPU:
             PRN: self.PRN,
             HLT: self.HLT,
             MUL: self.MUL,
-            CMP: self.CMP
+            CMP: self.CMP,
+            JMP: self.JMP
         }
 
     def ram_read(self, address):
@@ -102,6 +104,10 @@ class CPU:
     def CMP(self, op_a, op_b):
         self.alu("CMP", op_a, op_b)
         return 3
+
+    def JMP(self, op_a, op_b):
+        self.pc = self.reg[op_a]
+        return 0
 
     def run(self):
         """Run the CPU."""
